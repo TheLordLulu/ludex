@@ -1,0 +1,24 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  text-align: center;
+}
+
+body {
+  background-color: #bae6f5;
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  display: block;
+}
+
+
+
+
+
+

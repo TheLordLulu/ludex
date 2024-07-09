@@ -7,6 +7,18 @@
   text-align: center;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  font-family:"Fira Sans", "Trebuchet MS", Ubuntu, Helvetica, Arial, sans-serif; ;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #404040
+}
+
 body {
   background-color: #bae6f5;
   margin: 0;
@@ -18,7 +30,12 @@ div {
 }
 
 
+.bg-custom-gradient {
+  @apply bg-gray-700;
+  background-image: repeating-linear-gradient(-45deg, #6a6a6a 0, #6a6a6a 2px, #727272 2px, #727272 11px);
+}
 
-
-
+.text-indent-initial {
+  text-indent: initial;
+}
 

@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 import { PokemonTypes } from "../PokemonTypes/PokemonTypes";
-
-
 
 interface Stat {
   base_stat: number;
@@ -24,7 +22,30 @@ export const Pokedex = () => {
   const [pokemons, setPokemons] = React.useState<Pokemon[]>([]);
   const [sortField, setSortField] = React.useState<string | null>("");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+  const [search, setSearch] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [filteredPokemons, setFilteredPokemons] = useState<Pokemon[]>([]);
 
+  const pokemonTypes = [
+    { type: { name: "normal" } },
+    { type: { name: "fire" } },
+    { type: { name: "water" } },
+    { type: { name: "electric" } },
+    { type: { name: "grass" } },
+    { type: { name: "ice" } },
+    { type: { name: "fighting" } },
+    { type: { name: "poison" } },
+    { type: { name: "ground" } },
+    { type: { name: "psychic" } },
+    { type: { name: "rock" } },
+    { type: { name: "ghost" } },
+    { type: { name: "dragon" } },
+    { type: { name: "dark" } },
+    { type: { name: "steel" } },
+    { type: { name: "fairy" } },
+    { type: { name: "bug" } },
+    { type: { name: "flying" } },
+  ];
 
   // fetch data from the pokeapi
   useEffect(() => {
@@ -36,7 +57,7 @@ export const Pokedex = () => {
 
       // fetch detailed data for each pokemon
       const detailedPokemonData = await Promise.all(
-        data.results.map(async (pokemon) => {
+        data.results.map(async (pokemon: { url: RequestInfo | URL; }) => {
           const response = await fetch(pokemon.url);
           const pokemonData = await response.json();
           const spriteResponse = await fetch(pokemonData.sprites.front_default);
@@ -50,62 +71,137 @@ export const Pokedex = () => {
     fetchPokemon();
   }, []);
 
+  useEffect(() => {
+    // Filter pokemons whenever search or selectedType changes
+    const filterPokemons = () => {
+      const filtered = pokemons.filter((pokemon) => {
+        const matchesSearch = pokemon.name.toLowerCase().includes(search.toLowerCase());
+        const matchesType = selectedType ? pokemon.types.some((type) => type.type.name === selectedType) : true;
+        return matchesSearch && matchesType;
+      });
+      setFilteredPokemons(filtered);
+    };
+
+    filterPokemons();
+  }, [search, selectedType, pokemons]);
 
   // sort the pokemons based on the sortField and sortOrder
   const getSortedPokemons = () => {
-    return pokemons.slice().sort((a, b) => {
+    return filteredPokemons.slice().sort((a, b) => {
       if (sortField === "name") {
         // for string fields, we need to convert them to lowercase
         const fieldA = a[sortField].toString().toLowerCase();
         const fieldB = b[sortField].toString().toLowerCase();
-        if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
-        if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
+        if (fieldA < fieldB) return sortOrder === "asc" ? -1 : 1;
+        if (fieldA > fieldB) return sortOrder === "asc" ? 1 : -1;
         return 0;
       } else if (sortField === "id") {
         // Treat id as numeric value
         const idA = parseInt(a[sortField].toString());
         const idB = parseInt(b[sortField].toString());
-        return sortOrder === 'asc' ? idA - idB : idB - idA;
+        return sortOrder === "asc" ? idA - idB : idB - idA;
       } else if (sortField === "total") {
         // for total, we need to sum all stats
         const totalA = a.stats.reduce((total, stat) => total + stat.base_stat, 0);
         const totalB = b.stats.reduce((total, stat) => total + stat.base_stat, 0);
-        return sortOrder === 'asc' ? totalA - totalB : totalB - totalA;
+        return sortOrder === "asc" ? totalA - totalB : totalB - totalA;
       } else {
-        // for other stats, we need to find the stat by name
+        // Handle sorting by specific stats
         const statA = a.stats.find(stat => stat.stat.name === sortField)?.base_stat || 0;
         const statB = b.stats.find(stat => stat.stat.name === sortField)?.base_stat || 0;
-        return sortOrder === 'asc' ? statA - statB : statB - statA;
+        return sortOrder === "asc" ? statA - statB : statB - statA;
       }
     });
   };
 
   // handle sorting when a column is clicked
   const handleSort = (field: string) => {
-    if (sortField === field) { //
+    if (sortField === field) {
+      //
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else { // if the field is different, we set the field and order to default
+    } else {
+      // if the field is different, we set the field and order to default
       setSortField(field);
       setSortOrder("asc");
     }
-  }
+  };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white flex flex-col items-center">
+      <div className="input input-ghost input-sm input-primary flex items-center gap-2 w-1/3">
+        <input
+          type="text"
+          className="grow"
+          placeholder="Search by name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="select select-bordered select-sm capitalize"
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+        >
+          <option value="">All Types</option>
+          {pokemonTypes.map((type) => (
+            <option key={type.type.name} value={type.type.name}>
+              {type.type.name}
+            </option>
+          ))}
+            </select>
+        </div>
       <table className="mx-auto">
         <thead className="text-black bg-[#747474]">
           <tr className="">
             <th className="p-2">Sprite</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('id')}>Number</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('name')}>Name</th>
+            <th className="p-2 cursor-pointer" onClick={() => handleSort("id")}>
+              Number
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("name")}
+            >
+              Name
+            </th>
             <th className="p-2">Type</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('total')}>Total</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('hp')}>HP</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('attack')}>Attack</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('defense')}>Defense</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('special-attack')}>Sp.Atk</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('special-defense')}>Sp.Def</th>
-            <th className="p-2 cursor-pointer" onClick={() => handleSort('speed')}>Speed</th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("total")}
+            >
+              Total
+            </th>
+            <th className="p-2 cursor-pointer" onClick={() => handleSort("hp")}>
+              HP
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("attack")}
+            >
+              Attack
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("defense")}
+            >
+              Defense
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("special-attack")}
+            >
+              Sp.Atk
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("special-defense")}
+            >
+              Sp.Def
+            </th>
+            <th
+              className="p-2 cursor-pointer"
+              onClick={() => handleSort("speed")}
+            >
+              Speed
+            </th>
           </tr>
         </thead>
         <tbody>

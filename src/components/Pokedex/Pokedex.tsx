@@ -1,5 +1,6 @@
 import React, { useEffect, useState} from "react";
 import { PokemonTypes } from "../PokemonTypes/PokemonTypes";
+import bootstrap from 'bootstrap'
 
 interface Stat {
   base_stat: number;
@@ -127,11 +128,11 @@ export const Pokedex = () => {
   };
 
   return (
-    <div className="bg-white flex flex-col items-center">
-      <div className="input input-ghost input-sm input-primary flex items-center gap-2 w-1/3">
+    <div className="bg-white flex flex-col items-center p-10 container mt-10">
+      <div className="flex items-center gap-3 w-1/3 p-5 container ">
         <input
           type="text"
-          className="grow"
+          className="input input-ghost input-sm input-primary grow"
           placeholder="Search by name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -147,10 +148,10 @@ export const Pokedex = () => {
               {type.type.name}
             </option>
           ))}
-            </select>
-        </div>
-      <table className="mx-auto">
-        <thead className="text-black bg-[#747474]">
+        </select>
+      </div>
+      <table className="table">
+        <thead className="text-black bg-[#bcbbbb]">
           <tr className="">
             <th className="p-2">Sprite</th>
             <th className="p-2 cursor-pointer" onClick={() => handleSort("id")}>
@@ -204,9 +205,9 @@ export const Pokedex = () => {
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="">
           {getSortedPokemons().map((pokemon) => (
-            <tr key={pokemon.id}>
+            <tr key={pokemon.id} className="">
               <td>
                 <img src={pokemon.sprites.front_default} alt={pokemon.name} />
               </td>

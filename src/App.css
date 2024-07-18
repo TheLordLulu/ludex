@@ -39,3 +39,23 @@ div {
   text-indent: initial;
 }
 
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Creates a 3-column layout */
+  gap: 20px; /* Adjust the gap between grid items */
+}
+
+.grid-item {
+  /* Style for grid items */
+}
+
+.sprite {
+  height: 336px;
+  width: 360px;
+}
+
+.info, .training-breeding {
+  /* Additional style for the info and training-breeding sections */
+}
+
